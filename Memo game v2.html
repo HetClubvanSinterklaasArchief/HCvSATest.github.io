@@ -228,4 +228,66 @@
 
       let frontContent = "";
       if (cardObj.type === "image") {
-        frontContent = `<img src="${cardObj.value}"
+        frontContent = `<img src="${cardObj.value}" alt="kaartje" draggable="false"/>`;
+      } else {
+        frontContent = cardObj.value;
+      }
+
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-front">${frontContent}</div>
+          <div class="card-back"></div>
+        </div>
+      `;
+
+      card.addEventListener('click', onCardClick);
+      gameBoard.appendChild(card);
+    });
+  }
+
+  function onCardClick(e) {
+    if(lockBoard) return;
+    const card = e.currentTarget;
+    if(flippedCards.includes(card) || card.classList.contains('flipped')) return;
+
+    card.classList.add('flipped');
+    flippedCards.push(card);
+
+    if(flippedCards.length === 2) {
+      turns++;
+      turnsDisplay.textContent = turns;
+      checkForMatch();
+    }
+  }
+
+  function checkForMatch() {
+    const [card1, card2] = flippedCards;
+    if(card1.dataset.value === card2.dataset.value) {
+      matchedCards++;
+      matchesDisplay.textContent = matchedCards;
+      card1.classList.add("matched");
+      card2.classList.add("matched");
+      flippedCards = [];
+      if(matchedCards === totalPairs) {
+        message.textContent = 'Gefeliciteerd! Je hebt alle paren gevonden! 🎉';
+      }
+    } else {
+      lockBoard = true;
+      setTimeout(() => {
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        flippedCards = [];
+        lockBoard = false;
+      }, 1000);
+    }
+  }
+
+  resetBtn.addEventListener('click', createBoard);
+  levelSelect.addEventListener('change', createBoard);
+  modeSelect.addEventListener('change', createBoard);
+
+  createBoard();
+</script>
+
+</body>
+</html>
